@@ -1,8 +1,3 @@
-use std::{
-    sync::Arc,
-    time::{Duration, Instant},
-};
-
 use futures_util::StreamExt;
 use jito_protos::{
     auth::{auth_service_client::AuthServiceClient, Role},
@@ -23,14 +18,14 @@ use solana_sdk::{
     signature::{Keypair, Signature},
     transaction::VersionedTransaction,
 };
+use std::{
+    sync::Arc,
+    time::{Duration, Instant},
+};
 use thiserror::Error;
 use tokio::time::timeout;
-use tonic::{
-    codegen::InterceptedService,
-    transport,
-    transport::{Channel, Endpoint},
-    Response, Status, Streaming,
-};
+use tonic::transport::{Channel, ClientTlsConfig};
+use tonic::{codegen::InterceptedService, transport, Response, Status, Streaming};
 
 use crate::token_authenticator::ClientInterceptor;
 
@@ -79,9 +74,9 @@ pub async fn get_searcher_client(
 }
 
 pub async fn create_grpc_channel(url: &str) -> BlockEngineConnectionResult<Channel> {
-    let mut endpoint = Endpoint::from_shared(url.to_string()).expect("invalid url");
+    let mut endpoint = Channel::from_shared(url.to_string()).expect("invalid url");
     if url.contains("https") {
-        endpoint = endpoint.tls_config(tonic::transport::ClientTlsConfig::new())?;
+        endpoint = endpoint.tls_config(ClientTlsConfig::new())?;
     }
     Ok(endpoint.connect().await?)
 }
@@ -121,7 +116,7 @@ pub async fn send_bundle_with_confirmation(
                     Some(Reason::WinningBatchBidRejected(WinningBatchBidRejected {
                         auction_id,
                         simulated_bid_lamports,
-                        msg: _
+                        msg: _,
                     })) => {
                         return Err(Box::new(BundleRejectionError::WinningBatchBidRejected(
                             auction_id,
@@ -131,7 +126,7 @@ pub async fn send_bundle_with_confirmation(
                     Some(Reason::StateAuctionBidRejected(StateAuctionBidRejected {
                         auction_id,
                         simulated_bid_lamports,
-                        msg: _
+                        msg: _,
                     })) => {
                         return Err(Box::new(BundleRejectionError::StateAuctionBidRejected(
                             auction_id,

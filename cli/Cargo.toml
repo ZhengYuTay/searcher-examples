@@ -23,8 +23,8 @@ solana-sdk = "1.16"
 solana-transaction-status = "1.16"
 spl-memo = "3.0.1"
 thiserror = "1.0.44"
-tokio = { version = "~1.14.1", features = ["rt-multi-thread"] }
-tonic = { version = "0.8.3", features = [
+tokio = { version = "1.32", features = ["rt-multi-thread"] }
+tonic = { version = "0.9.2", features = [
     "tls",
     "tls-roots",
     "tls-webpki-roots",
